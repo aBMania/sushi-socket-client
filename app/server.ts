@@ -10,7 +10,30 @@ const io = require('socket.io')(3000);
 
 const client = new Twitter(config);
 
-let ingredients = ['salmon', 'rice', 'tuna', 'crab', 'cheese', 'avocado'];
+let ingredients = [
+    // Rice
+    'rice',
+
+    // Fishes
+    'salmon',
+    'tuna',
+    'crab',
+    'surimi',
+
+    // Garnishes
+    'cheese',
+    'avocado',
+    'cucumber',
+    'strawberry',
+
+    // Sauces
+    'wasabi',
+    'soja',
+
+    // Wraps
+    'algua',
+    'egg',
+];
 
 const tweet$: Observable<ITweet> = Observable.create((observer: Observer<Ingedient>) => {
     client.stream('statuses/filter', {
@@ -21,13 +44,14 @@ const tweet$: Observable<ITweet> = Observable.create((observer: Observer<Ingedie
         });
 
         stream.on('error', function (error) {
-            console.log(`error`);
+            console.log(`error ${error}`);
         })
     })
 });
 
 const food$: Observable<Ingedient> =
     tweet$
+        .filter(tweet => !!tweet.text)
         .map(tweet => {
             const ingredient = _.find(ingredients, (ingredient) => {
                 return _.includes(tweet.text.toLocaleLowerCase(), ingredient)
